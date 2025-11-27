@@ -1,5 +1,13 @@
 <?php
-
+/**
+ * PlateDetectionController
+ * 
+ * Fungsi inti: Menghandle permintaan dari frontend untuk mendeteksi plat nomor
+ * menggunakan Python API. Controller ini melakukan validasi gambar, mengirim
+ * gambar ke Python API, menerima hasil deteksi, dan mengembalikan response
+ * JSON ke client. Juga menyediakan endpoint untuk mengecek koneksi dengan 
+ * Python API.
+ */
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
