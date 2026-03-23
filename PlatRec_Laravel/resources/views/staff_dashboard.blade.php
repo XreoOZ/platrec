@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Dashboard Admin - Aplikasi Plat Nomor</title>
+    <title>Dashboard Staff - Aplikasi Plat Nomor</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 
@@ -9,7 +9,7 @@
 
     <!-- HEADER -->
     <header class="bg-gray-800 text-white h-20 flex items-center px-6">
-        <h1 class="text-xl">Dashboard Admin</h1>
+        <h1 class="text-xl">Dashboard Staff</h1>
 
         <form action="/logout" method="POST" class="ml-auto">
             @csrf
@@ -24,11 +24,11 @@
 
         <!-- WELCOME MSG -->
         <h2 class="text-2xl font-semibold mb-6">
-            Selamat Datang di Dashboard Admin
+            Selamat Datang di Dashboard Staff
         </h2>
 
-        <!-- FEATURE BUTTONS -->
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
+        <!-- FEATURE BUTTONS (Filtered for Staff) -->
+        <div class="grid grid-cols-2 gap-4 mb-10">
 
             <a href="/deteksi"
                class="text-white text-center py-6 rounded shadow"
@@ -42,23 +42,7 @@
                 Riwayat Deteksi
             </a>
 
-            <a href="/manajemen"
-               class="text-white text-center py-6 rounded shadow"
-               style="background:#e74c3c;">
-                Input Plat Nomor
-            </a>
-
-            <a href="/pengaturan"
-               class="text-white text-center py-6 rounded shadow"
-               style="background:#f39c12;">
-                Data Pengguna
-            </a>
-
-            <a href="/pengaturan"
-               class="text-white text-center py-6 rounded shadow"
-               style="background:#f39c12;">
-                Laporan
-            </a>
+            <!-- Removed Admin-only links here (Manajemen/Input, Pengaturan, Laporan) -->
         </div>
 
         <!-- RECENT ACTIVITY -->

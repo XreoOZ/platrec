@@ -392,7 +392,7 @@
             }
         });
 
-        // Check Python API status on load - CUMA UPDATE STATUS, GAK NYALAIN KAMERA
+        // Check Python API status on load - TAPI JANGAN DISABLE TOMBOL!
         async function checkPythonAPI() {
             try {
                 const response = await fetchWithTimeout('http://localhost:5000/health', 3000);
@@ -403,13 +403,16 @@
                     apiStatus.classList.remove('text-red-600');
                     apiStatus.classList.add('text-green-600');
                     
-                    // HANYA UPDATE STATUS TEXT, JANGAN UBAH STATE KAMERA
                     if (data.camera_status === 'active') {
-                        cameraStatusText.textContent = 'Menyala (di backend)';
+                        cameraActive = true;
+                        captureBtn.disabled = false;
+                        stopBtn.disabled = false;
+                        cameraStatusText.textContent = 'Menyala (dari server)';
                         cameraStatusText.classList.add('text-green-600');
-                    } else {
-                        cameraStatusText.textContent = 'Mati';
-                        cameraStatusText.classList.remove('text-green-600');
+                        
+                        cameraFeed.src = 'http://localhost:5000/video_feed?' + new Date().getTime();
+                        cameraFeed.classList.remove('hidden');
+                        cameraPlaceholder.classList.add('hidden');
                     }
                 } else {
                     apiStatus.textContent = `API: Gagal response (${response.status})`;
@@ -421,12 +424,18 @@
                 apiStatus.classList.add('text-red-600');
                 statusText.textContent = 'Menunggu koneksi ke server...';
             } finally {
+                // TOMBOL TETAP AKTIF! user tetap bisa coba nyalakan kamera
                 powerOnCameraBtn.disabled = false;
             }
         }
 
-        // Panggil sekali
+        // Panggil sekali, jangan looping terus
         checkPythonAPI();
+        
+        // Optional: cek ulang setiap 30 detik, tapi jangan disable tombol
+        setInterval(() => {
+            checkPythonAPI();
+        }, 30000);
     </script>
 </body>
 </html>
