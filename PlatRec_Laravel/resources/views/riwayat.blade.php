@@ -57,16 +57,28 @@
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tanggal</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Jam</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Gambar</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-200">
                         @php $no = 1; @endphp
                         @forelse($plates as $plate)
+                        @php 
+                            $isTidakTerdeteksi = empty($plate->plate_number) || $plate->plate_number == 'Tidak Terdeteksi';
+                            $isKurangLengkap = false;
+                            if (!$isTidakTerdeteksi) {
+                                $isKurangLengkap = !preg_match('/^[A-Za-z]{1,2}\s*\d{1,4}\s*[A-Za-z]{1,3}$/', trim($plate->plate_number));
+                            }
+                        @endphp
                         <tr class="hover:bg-gray-50">
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $no++ }}</td>
                             <td class="px-6 py-4 whitespace-nowrap">
-                                @if($plate->plate_number == 'Tidak Terdeteksi')
+                                @if($isTidakTerdeteksi)
+                                <span class="text-sm font-mono font-medium text-red-600 bg-red-100 px-3 py-1 rounded-full">
+                                    Tidak Terdeteksi
+                                </span>
+                                @elseif($isKurangLengkap)
                                 <span class="text-sm font-mono font-medium text-red-600 bg-red-100 px-3 py-1 rounded-full">
                                     {{ $plate->plate_number }}
                                 </span>
@@ -92,7 +104,22 @@
                                 @endif
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
-                                <button onclick="openEditModal({{ $plate->id }}, '{{ $plate->plate_number }}')" 
+                                @if($isTidakTerdeteksi)
+                                <span class="px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                    Gagal
+                                </span>
+                                @elseif($isKurangLengkap)
+                                <span class="px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                    Perbaiki
+                                </span>
+                                @else
+                                <span class="px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                    Berhasil
+                                </span>
+                                @endif
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <button onclick="openEditModal({{ $plate->id }}, '{{ $plate->plate_number }}', '{{ $plate->original_image ?? '' }}')" 
                                         class="text-yellow-600 hover:text-yellow-800 text-sm font-medium">
                                     Edit
                                 </button>
@@ -136,7 +163,7 @@
 
     <!-- MODAL EDIT PLAT -->
     <div id="editModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
-        <div class="bg-white rounded-lg max-w-md w-full mx-4">
+        <div class="bg-white rounded-lg max-w-2xl w-full mx-4">
             <div class="p-4 border-b flex justify-between items-center">
                 <h3 class="text-lg font-semibold">Edit Plat Nomor</h3>
                 <button onclick="closeEditModal()" class="text-gray-500 hover:text-gray-700">
@@ -145,26 +172,34 @@
                     </svg>
                 </button>
             </div>
-            <div class="p-4">
-                <form id="editForm" onsubmit="saveEdit(event)">
-                    <input type="hidden" id="editId" name="id">
-                    <div class="mb-4">
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Plat Nomor</label>
-                        <input type="text" id="editPlateNumber" name="plate_number" 
-                               class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-blue-500 focus:border-blue-500"
-                               placeholder="Masukkan plat nomor">
-                    </div>
-                    <div class="flex justify-end gap-2">
-                        <button type="button" onclick="closeEditModal()" 
-                                class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg">
-                            Batal
-                        </button>
-                        <button type="submit" 
-                                class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg">
-                            Simpan
-                        </button>
-                    </div>
-                </form>
+            <div class="p-4 flex flex-col md:flex-row gap-6">
+                <!-- Image Side -->
+                <div class="w-full md:w-1/2 flex flex-col items-center justify-center bg-gray-100 rounded-lg overflow-hidden border border-gray-200 min-h-[200px]">
+                    <img id="editPlateImage" src="" alt="Gambar Plat" class="max-w-full max-h-48 object-contain hidden">
+                    <span id="noEditImageText" class="text-gray-400 text-sm">Tidak ada gambar</span>
+                </div>
+                <!-- Form Side -->
+                <div class="w-full md:w-1/2 flex flex-col justify-center">
+                    <form id="editForm" onsubmit="saveEdit(event)" class="w-full">
+                        <input type="hidden" id="editId" name="id">
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Plat Nomor</label>
+                            <input type="text" id="editPlateNumber" name="plate_number" 
+                                   class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-blue-500 focus:border-blue-500"
+                                   placeholder="Masukkan plat nomor">
+                        </div>
+                        <div class="flex justify-end gap-2 mt-4">
+                            <button type="button" onclick="closeEditModal()" 
+                                    class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg transition duration-200">
+                                Batal
+                            </button>
+                            <button type="submit" 
+                                    class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition duration-200 shadow-sm">
+                                Simpan
+                            </button>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
@@ -187,10 +222,24 @@
         }
 
         // FUNGSI EDIT MODAL
-        function openEditModal(id, plateNumber) {
+        function openEditModal(id, plateNumber, imagePath) {
             currentEditId = id;
             document.getElementById('editId').value = id;
             document.getElementById('editPlateNumber').value = plateNumber;
+            
+            const imageEl = document.getElementById('editPlateImage');
+            const noImageText = document.getElementById('noEditImageText');
+            
+            if (imagePath && imagePath.trim() !== '') {
+                imageEl.src = `http://localhost:5000/${imagePath}`;
+                imageEl.classList.remove('hidden');
+                noImageText.classList.add('hidden');
+            } else {
+                imageEl.src = '';
+                imageEl.classList.add('hidden');
+                noImageText.classList.remove('hidden');
+            }
+            
             document.getElementById('editModal').classList.remove('hidden');
             document.getElementById('editModal').classList.add('flex');
         }

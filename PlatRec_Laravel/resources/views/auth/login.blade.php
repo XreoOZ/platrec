@@ -55,7 +55,7 @@
                 <div class="flex items-center justify-between mb-6">
                     <label class="inline-flex items-center">
                         <input type="checkbox" name="remember" class="rounded border-gray-300 text-blue-600 shadow-sm focus:ring-blue-500">
-                        <span class="ml-2 text-sm text-gray-600">Remember me</span>
+                        <span class="ml-2 text-sm text-gray-600">Ingat saya</span>
                     </label>
                     
                     @if (Route::has('password.request'))

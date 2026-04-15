@@ -74,12 +74,38 @@ class PlateDetectionController extends Controller
     
     public function dashboard()
     {
-        return view('dashboard');
+        $plates = DB::table('plates')->orderBy('created_at', 'desc')->limit(10)->get();
+        $totalPlates = DB::table('plates')->count();
+        $successfulDetections = DB::table('plates')
+            ->whereNotNull('plate_number')
+            ->where('plate_number', '!=', '')
+            ->where('plate_number', '!=', 'Tidak Terdeteksi')
+            ->whereDate('created_at', \Carbon\Carbon::today())
+            ->count();
+        $imagesCount = DB::table('plates')
+            ->whereNotNull('original_image')
+            ->where('original_image', '!=', '')
+            ->count();
+        
+        return view('dashboard', compact('plates', 'totalPlates', 'successfulDetections', 'imagesCount'));
     }
 
     public function staffDashboard()
     {
-        return view('staff_dashboard');
+        $plates = DB::table('plates')->orderBy('created_at', 'desc')->limit(10)->get();
+        $totalPlates = DB::table('plates')->count();
+        $successfulDetections = DB::table('plates')
+            ->whereNotNull('plate_number')
+            ->where('plate_number', '!=', '')
+            ->where('plate_number', '!=', 'Tidak Terdeteksi')
+            ->whereDate('created_at', \Carbon\Carbon::today())
+            ->count();
+        $imagesCount = DB::table('plates')
+            ->whereNotNull('original_image')
+            ->where('original_image', '!=', '')
+            ->count();
+        
+        return view('staff_dashboard', compact('plates', 'totalPlates', 'successfulDetections', 'imagesCount'));
     }
 
     public function deteksi()
